@@ -1,0 +1,14 @@
+runtime: nodejs20
+
+handlers:
+  # Serve static files (JS, CSS, images) from the Vite build directory
+  - url: /(.*\.(js|css|png|jpg|webp|svg|ico|ttf|woff2?))$
+    static_files: dist/\1
+    upload: dist/(.*\.(js|css|png|jpg|webp|svg|ico|ttf|woff2?))$
+    secure: always
+
+  # Serve index.html for all other routing (React Router fallback)
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+    secure: always

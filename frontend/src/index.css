@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Minimalist card / Cyber Card */
+  .bento-card {
+    @apply bg-white border border-slate-200 rounded-3xl shadow-lg transition-all duration-300 hover:shadow-2xl 
+           dark:bg-cyber-dark dark:border-cyber-border dark:rounded-none dark:shadow-none dark:hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] dark:hover:border-cyber-primary dark:backdrop-blur-md;
+  }
+  
+  /* Buttons */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center px-8 py-3.5 font-bold text-white transition-all duration-200 bg-brand-500 rounded-full hover:bg-brand-400 shadow-md hover:shadow-lg focus:ring-4 focus:ring-brand-500/30
+           dark:bg-cyber-primary/10 dark:text-cyber-primary dark:font-mono dark:border dark:border-cyber-primary dark:rounded-sm dark:shadow-[inset_0_0_10px_rgba(0,240,255,0.1),0_0_10px_rgba(0,240,255,0.1)] dark:hover:bg-cyber-primary dark:hover:text-black dark:hover:shadow-[0_0_20px_rgba(0,240,255,1)] dark:hover:-translate-y-1;
+  }
+  
+  .btn-outline {
+    @apply px-8 py-3.5 font-bold text-slate-700 bg-white border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 shadow-sm hover:shadow-md
+           dark:bg-transparent dark:text-slate-200 dark:border-slate-500 dark:font-mono dark:rounded-sm dark:shadow-none dark:hover:border-cyber-secondary dark:hover:text-cyber-secondary dark:hover:shadow-[0_0_15px_rgba(188,19,254,0.3)];
+  }
+
+  .input-clean {
+    @apply w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all
+           dark:bg-black/50 dark:border-cyber-border dark:text-white dark:rounded-sm dark:font-cyber dark:focus:border-cyber-primary dark:focus:ring-0 dark:focus:shadow-[0_0_15px_rgba(0,240,255,0.2)] dark:focus:bg-black/80;
+  }
+
+  .badge-tag {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 bg-brand-500/10 text-brand-900 rounded-full text-xs font-bold tracking-wide uppercase
+           dark:bg-black/80 dark:text-cyber-primary dark:border dark:border-cyber-primary dark:font-mono dark:rounded-none dark:shadow-[0_0_10px_rgba(0,240,255,0.4)];
+  }
+  
+  .badge-success {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold tracking-wide uppercase
+           dark:bg-black/80 dark:text-emerald-500 dark:border dark:border-emerald-500 dark:font-mono dark:rounded-none dark:shadow-[0_0_10px_rgba(16,185,129,0.4)];
+  }
+}
+
+/* Custom background for dark mode (Grid) */
+.dark-grid-bg {
+  background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}

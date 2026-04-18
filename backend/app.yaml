@@ -1,0 +1,5 @@
+runtime: nodejs20
+env_variables:
+  DATABASE_URL: "YAHAN_APNA_SUPABASE_URI_DALEIN"
+  JWT_SECRET: "super_secret_jwt_key_smartevent_system"
+  PORT: "8080"
