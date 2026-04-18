@@ -275,19 +275,16 @@ const AdminDashboard = () => (
   </div>
 );
 
-const VenueMap = ({ venue }) => (
-  <div className="rounded-xl overflow-hidden h-48 w-full mt-3" 
-       role="region" 
-       aria-label={`Map showing venue location: ${venue}`}>
+const VenueMap = ({ venue = "Raipur Chhattisgarh" }) => (
+  <div className="rounded-xl overflow-hidden mt-3" style={{height: '200px'}}>
     <iframe
-      title={`Venue map for ${venue}`}
+      title="Event Venue Location"
+      aria-label="Google Maps showing event venue"
       width="100%"
       height="100%"
       style={{border:0}}
       loading="lazy"
-      allowFullScreen
-      referrerPolicy="no-referrer-when-downgrade"
-      src={`https://www.google.com/maps/embed/v1/search?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || 'AIzaSyD-placeholder'}&q=${encodeURIComponent(venue)}`}
+      src={`https://maps.google.com/maps?q=${encodeURIComponent(venue)}&output=embed`}
     />
   </div>
 );
