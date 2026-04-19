@@ -13,3 +13,4 @@ logs/
 
 # Coverage
 coverage/
+serviceAccountKey.json 
