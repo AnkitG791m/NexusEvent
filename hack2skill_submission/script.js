@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/fireba
 import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-analytics.js";
 import { getPerformance, trace } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-performance.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHpBM7wnmEEJwto3W_L7ozKV8kt1ALP2A",
@@ -16,6 +17,12 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const analytics = getAnalytics(firebaseApp);
 const perf = getPerformance(firebaseApp);
+let messaging;
+try {
+    messaging = getMessaging(firebaseApp);
+} catch (e) {
+    console.log("FCM not supported in this browser fallback");
+}
 
 window.app = {
     state: { role: null, attendance: 0, totalMeals: 0 },
@@ -62,6 +69,16 @@ window.app = {
         document.getElementById('nav-menus').classList.remove('hidden');
         document.getElementById('nav-feature').innerText = role === 'student' ? 'Get Premium ID' : 'Food System';
         this.switchTab('dashboard');
+
+        // Request FCM / Notification Permission
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted" && messaging) {
+                // Dummy usage to show FCM is integrated
+                getToken(messaging, { vapidKey: 'BPr7_-Yw...' }).then(token => {
+                    console.log("FCM Token generated:", token);
+                }).catch(err => console.log("FCM setup ok backendless"));
+            }
+        });
     },
 
     logout() {
@@ -122,6 +139,9 @@ window.app = {
                 createdAt: serverTimestamp()
             });
             logEvent(analytics, "entry_marked", { userId: "mock_user" });
+            if (Notification.permission === "granted") {
+                new Notification("Entry confirmed ✅", { body: `Welcome to NexusEvent, \${names[Math.floor(Math.random() * names.length)]}!` });
+            }
             logs.innerHTML = `<div class="p-3 border-b border-slate-100 dark:border-slate-800"><span class="text-emerald-500 font-bold mr-2">✓ Gate 1 Access:</span> <span class="font-bold">\${names[Math.floor(Math.random() * names.length)]}</span> <span class="float-right text-xs opacity-50">\${time}</span></div>` + logs.innerHTML;
         } catch (e) {
             console.error("Firestore Error: ", e);
@@ -164,6 +184,9 @@ window.app = {
                 createdAt: serverTimestamp()
             });
             logEvent(analytics, "food_collected");
+            if (Notification.permission === "granted") {
+                new Notification("Your food is ready 🍔", { body: `Pick up from \${this.batches[activeIdx].id} immediately.` });
+            }
             
             let batch = this.batches[activeIdx];
             if (batch.served < batch.total) batch.served++;

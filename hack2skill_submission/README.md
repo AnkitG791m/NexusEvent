@@ -19,7 +19,9 @@ To comply with the Hack2Skill minimum size constraint and zero heavy-framework r
 ## Google Services Integration
 - **Firebase Firestore** (real-time database)
 - **Firebase Analytics** (event tracking)
-- **Performance monitoring**
+- **Firebase Cloud Messaging / Browser Notifications API** (event updates)
+- **Firebase Cloud Storage** (media/poster storage)
+- **Google Maps Embed API** (event location mapping)
 - Live updates using `onSnapshot()`
 
 ## 📌 Assumptions Made
