@@ -142,7 +142,7 @@ window.app = {
             if (Notification.permission === "granted") {
                 new Notification("Entry confirmed ✅", { body: `Welcome to NexusEvent, \${names[Math.floor(Math.random() * names.length)]}!` });
             }
-            logs.innerHTML = `<div class="p-3 border-b border-slate-100 dark:border-slate-800"><span class="text-emerald-500 font-bold mr-2">✓ Gate 1 Access:</span> <span class="font-bold">\${names[Math.floor(Math.random() * names.length)]}</span> <span class="float-right text-xs opacity-50">\${time}</span></div>` + logs.innerHTML;
+            logs.innerHTML = `<div class="p-3 border-b border-slate-100 dark:border-slate-800"><span class="status-success mr-2">Checked In ✅</span> <span class="font-bold">\${names[Math.floor(Math.random() * names.length)]}</span> <span class="float-right text-xs opacity-50">\${time}</span></div>` + logs.innerHTML;
         } catch (e) {
             console.error("Firestore Error: ", e);
         }
@@ -198,7 +198,7 @@ window.app = {
             }
             
             if (batch.served === batch.total) {
-                batch.status = 'Completed';
+                batch.status = 'Collected 🍔';
                 if (activeIdx + 1 < this.batches.length) {
                     this.batches[activeIdx + 1].status = 'Active';
                 }
@@ -232,14 +232,14 @@ window.app = {
              } else if(b.status === 'Standby') {
                 colorClass = 'border-amber-500 bg-amber-50 dark:bg-amber-500/10';
                 tagClass = 'bg-amber-500 text-white animate-pulse';
-             } else if(b.status === 'Completed') {
+             } else if(b.status === 'Collected 🍔') {
                 colorClass = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 opacity-70';
                 tagClass = 'bg-emerald-100 text-emerald-700';
              }
 
              let dots = '';
              for(let i=0; i<b.total; i++) {
-                dots += `<div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${i < b.served ? (b.status==='Completed'?'bg-emerald-500':'bg-brand-500') : 'bg-slate-200 dark:bg-slate-700'}"></div>`;
+                dots += `<div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${i < b.served ? (b.status==='Collected 🍔'?'bg-emerald-500':'bg-brand-500') : 'bg-slate-200 dark:bg-slate-700'}"></div>`;
              }
 
              html += `
