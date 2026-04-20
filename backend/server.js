@@ -14,7 +14,12 @@ dotenv.config();
 const { Pool } = pkg;
 
 import { Storage } from '@google-cloud/storage';
+import vision from '@google-cloud/vision';
 
+const visionClient = new vision.ImageAnnotatorClient({
+  projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccountKey.json'
+});
 const storage = new Storage({
   projectId: process.env.GOOGLE_CLOUD_PROJECT,
   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || './serviceAccountKey.json'
@@ -229,6 +234,42 @@ app.post('/api/storage/upload-qr', requireAuth, async (req, res) => {
     res.status(200).json({ message: 'Uploaded successfully', publicUrl });
   } catch (err) {
     res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+/**
+ * @route POST /api/vision/verify-qr
+ * @desc  Verify QR code image using Google Cloud Vision API
+ */
+app.post('/api/vision/verify-qr', requireAuth, async (req, res) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'imageBase64 is required' });
+    }
+
+    // Decode base64 image
+    const imageBuffer = Buffer.from(imageBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+
+    // Call Cloud Vision API
+    const [result] = await visionClient.textDetection({ image: { content: imageBuffer } });
+    const detections = result.textAnnotations;
+    
+    if (!detections || detections.length === 0) {
+      return res.status(404).json({ error: 'No text/QR content found in image' });
+    }
+
+    const qrText = detections[0].description;
+    
+    // Simulate validation logic based on the extracted text
+    if (qrText.includes('NEX-')) {
+      res.status(200).json({ message: 'QR Verified successfully', data: qrText });
+    } else {
+      res.status(400).json({ error: 'Invalid QR signature' });
+    }
+  } catch (err) {
+    console.error('Vision API Error:', err.message);
+    res.status(500).json({ error: 'Vision API Error' });
   }
 });
 

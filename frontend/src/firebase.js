@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit, serverTimestamp, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getPerformance, trace } from 'firebase/performance';
+import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -104,6 +106,70 @@ export const markAttendanceFirestore = async (eventId, userId, studentData) => {
     markedAt: new Date().toISOString(),
     status: 'present'
   });
+};
+
+// Real-time attendance counter
+export const listenToLiveAttendance = (eventId, callback) => {
+  const q = query(
+    collection(db, 'events', eventId, 'attendance'),
+    orderBy('markedAt', 'desc')
+  );
+  return onSnapshot(q, (snapshot) => {
+    callback({
+      count: snapshot.size,
+      latest: snapshot.docs.slice(0, 5).map(d => d.data())
+    });
+  });
+};
+
+// Save food batch notification to Firestore
+export const saveFoodBatchToFirestore = async (eventId, batchData) => {
+  const ref = doc(db, 'events', eventId, 'foodBatches', `batch_${batchData.number}`);
+  await setDoc(ref, {
+    ...batchData,
+    createdAt: serverTimestamp()
+  });
+};
+
+// Real-time food batch listener for students
+export const listenToFoodBatch = (eventId, callback) => {
+  return onSnapshot(
+    collection(db, 'events', eventId, 'foodBatches'),
+    (snapshot) => callback(snapshot.docs.map(d => d.data()))
+  );
+};
+
+// ── Performance Monitoring ──────────────────────────────────────
+export const perf = getPerformance(app);
+
+// Track QR scan performance
+export const trackQRScan = async (fn) => {
+  const t = trace(perf, 'qr_scan_time');
+  t.start();
+  const result = await fn();
+  t.stop();
+  return result;
+};
+
+// ── Remote Config ───────────────────────────────────────────────
+export const remoteConfig = getRemoteConfig(app);
+remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
+
+remoteConfig.defaultConfig = {
+  food_batch_size: 10,
+  registration_open: true,
+  max_seat_capacity: 500,
+  credit_attend_bonus: 10,
+  credit_noshow_penalty: 10
+};
+
+export const getRemoteValue = async (key) => {
+  try {
+    await fetchAndActivate(remoteConfig);
+    return getValue(remoteConfig, key).asString();
+  } catch (e) {
+    return remoteConfig.defaultConfig[key];
+  }
 };
 
 export default app;

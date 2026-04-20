@@ -7,7 +7,7 @@ import {
   Settings, UserCircle, LogOut, Search, Users, Activity, ChevronRight, Moon, Sun, ScanLine, CheckCircle2, AlertTriangle, BookOpen
 } from 'lucide-react';
 import Login from './components/Login.jsx';
-import { logOut } from './firebase.js';
+import { logOut, listenToLiveAttendance, getRemoteValue } from './firebase.js';
 
 // --- Clean Sidebar ---
 const Sidebar = ({ role, onLogout }) => {
@@ -221,14 +221,34 @@ const StudentDashboard = () => (
   </div>
 );
 
-const AdminDashboard = () => (
+const AdminDashboard = () => {
+  const [liveCount, setLiveCount] = useState(0);
+  const selectedEventId = 'default'; // In a real app this comes from state
+
+  useEffect(() => {
+    if (selectedEventId) {
+      const unsub = listenToLiveAttendance(selectedEventId, (data) => {
+        setLiveCount(data.count);
+      });
+      return () => unsub();
+    }
+  }, [selectedEventId]);
+
+  return (
   <div className="p-10 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500 h-full">
     <div className="flex justify-between items-end mb-2 border-b border-slate-200 dark:border-cyber-border pb-4">
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2 dark:font-cyber">Admin Command Center</h1>
         <p className="text-slate-500 dark:text-cyber-primary font-medium dark:font-mono">Monitoring Event: CodeYuva Coding Challenge</p>
       </div>
-      <div className="badge-success shadow-none">● Live Server</div>
+      <div className="flex flex-col gap-2 items-end">
+        <div className="badge-success shadow-none">● Live Server</div>
+        <div className="flex items-center gap-2 p-2 bg-green-50 rounded-xl border border-green-200">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="font-bold text-green-700 text-xs">Live Attendance: {liveCount}</span>
+          <span className="text-[10px] text-green-500">via Firebase Firestore</span>
+        </div>
+      </div>
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -274,8 +294,8 @@ const AdminDashboard = () => (
       </div>
     </div>
   </div>
-);
-
+  );
+};
 const VenueMap = ({ venue }) => (
   <div className="rounded-2xl overflow-hidden mt-4 border border-slate-200 dark:border-slate-700" 
        style={{height: '220px'}}
@@ -530,6 +550,11 @@ const StudentCredit = () => (
 
 const StudentFood = () => {
   const [isRegistered, setIsRegistered] = useState(true);
+  const [batchSize, setBatchSize] = useState(10);
+
+  useEffect(() => {
+    getRemoteValue('food_batch_size').then(val => setBatchSize(Number(val)));
+  }, []);
 
   return (
     <div className="p-10 max-w-4xl mx-auto animate-in fade-in pt-10">
@@ -561,7 +586,7 @@ const StudentFood = () => {
              </div>
              <div className="text-5xl font-black text-indigo-600 dark:text-cyber-primary font-mono mb-6">ELIGIBLE</div>
              <div className="space-y-3">
-               <p className="text-slate-500 dark:text-slate-400">Batch Assignment: <strong className="dark:text-white glow-text-cyan">Row A (Seats 1-10)</strong></p>
+               <p className="text-slate-500 dark:text-slate-400">Batch Assignment: <strong className="dark:text-white glow-text-cyan">Row A (Seats 1-{batchSize})</strong></p>
                <p className="text-slate-500 dark:text-slate-400">Time Window: <strong className="dark:text-white">14:00 - 14:15 hrs</strong></p>
                <p className="text-slate-500 dark:text-slate-400">Menu Category: <strong className="dark:text-emerald-400">Standard Veg Meal</strong></p>
              </div>

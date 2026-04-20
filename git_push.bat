@@ -1,4 +1,4 @@
 @echo off
 git add .
-git commit -m "feat: Google Maps and GCS integration"
+git commit -m "feat: google services enhancements (firestore, tracking, config, vision)"
 git push origin main --force
